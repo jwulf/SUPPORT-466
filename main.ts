@@ -1,22 +1,21 @@
-import { Camunda8 } from '@camunda8/sdk'
+import { Camunda8, Auth } from '@camunda8/sdk'
 
+const workerCount = Number.parseInt((process.env.WORKERS ?? '2000'), 10)
+const loglevel = process.env.ZEEBE_CLIENT_LOG_LEVEL ?? 'ERROR'
+// Clear the cache directory to avoid issues with stale tokens between runs - if we are running in an OAuth environment
+Auth.OAuthProvider.clearCacheDir()
 async function main() {
-    const port = 26500;
-    const c8 = new Camunda8({
-        ZEEBE_ADDRESS: `localhost:${port}`,
-        CAMUNDA_OAUTH_DISABLED: true,
-        CAMUNDA_SECURE_CONNECTION: false,
-        CAMUNDA_JOB_WORKER_MAX_BACKOFF_MS: 5000
-    })
+    const c8 = new Camunda8()
+
     const client = c8.getZeebeGrpcApiClient()
-    await client.deployResource({processFilename: 'test.bpmn'})
-    for(let i = 0; i < 2000; i++) {
+
+    for(let i = 0; i < workerCount; i++) {
     client.createWorker({
         taskType: 'test' + i,
         taskHandler: (job) => job.complete(),
         maxJobsToActivate: 20,
         timeout: 1000,
-        loglevel: 'DEBUG',
+        loglevel: 'ERROR',
     })
     }
 }

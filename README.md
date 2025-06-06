@@ -4,16 +4,9 @@ This is a minimal reproducer for https://github.com/camunda/camunda-8-js-sdk/iss
 
 ## Instructions
 
-### Mocked service  
+1. `docker compose up -d`
+2. `source .env` # load env vars for connection
+2. `npx ts-node main.ts` # Start workers
+3. `npx ts-node start.ts` # Start processes in another window — source .env there too
 
-1. `npm i`
-2. `npx ts-node app.ts`
 
-Observe the backpressure log messages. 
-
-App does not exit.
-
-### Dockerized Zeebe
-
-1. `docker up -d`
-2. `npx ts-node main.ts`
